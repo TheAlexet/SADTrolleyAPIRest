@@ -1,0 +1,17 @@
+const http = require('http');
+const axios = require('axios');
+const service = require('../server/service')();
+const server = http.createServer(service);
+
+// Important - a service should not have a fixed port but should randomly choose one
+server.listen(0);
+
+server.on('listening', () => {
+  const registerService = () => axios.put(`http://localhost:3000/register/trolley/1.0.0/${server.address().port}`);
+
+  setInterval(registerService, 8000)
+
+  console.log(
+    `Hi there! I'm listening on port ${server.address().port} in ${service.get('env')} mode.`,
+  );
+});
