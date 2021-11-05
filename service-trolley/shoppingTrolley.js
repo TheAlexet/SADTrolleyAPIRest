@@ -1,12 +1,16 @@
-module.exports = class Trolley {
+const axios = require('axios');
 
+var mongoPort;
+
+module.exports = class Trolley {
+    
     /**
      * Creates a new trolley
      * @param  {Product[]} products The list of products of the trolley
      */
     constructor(products) {
         this.products = products == undefined ? [] : products;
-        var mongoPort = axios.get(`http://localhost:3000/find/mongo/1.0.0`).then((res) => mongoPort = res.data.port);
+        mongoPort = axios.get(`http://localhost:3000/find/mongo/1.0.0`).then((res) => mongoPort = res.data.port);
     }
 
     /**
@@ -86,20 +90,21 @@ module.exports = class Trolley {
             var alreadyInTrolley = targetProduct.length > 0 ? true : false;
             //var thereIsStock = await mongoClient.checkStock(newProduct.id, newProduct.amount);
             var thereIsStock;
-            axios.get(`http://localhost:` + mongoPort + `/checkStock/:` + newProduct.id + `/:` + newProduct.amount).then((res) => thereIsStock = res.data);
-            console.log("--- CHECKING STOCK ---\n");
-            if(thereIsStock){
-                if(alreadyInTrolley) { //If already in the trolley, add amounts
-                    var productIndex = productsList.findIndex(product => product.id === newProduct.id);
-                    productsList[productIndex].amount += newProduct.amount;
-                } else { //If the product is new, add the product instead
-                    productsList = productsList.push(newProduct);
-                }
-                console.log("--- PRODUCT ADDED ---\n");
-            
-            } else{
-                console.log("--- NO STOCK AVAILABLE ---\n");
-            } 
+            axios.get(`http://localhost:` + mongoPort + `/checkStock/` + newProduct.id + `/` + newProduct.amount).then((res) => thereIsStock = res.data.resultBoolean).then(() => {
+                console.log("--- CHECKING STOCK ---\n");
+                if(thereIsStock){
+                    if(alreadyInTrolley) { //If already in the trolley, add amounts
+                        var productIndex = productsList.findIndex(product => product.id === newProduct.id);
+                        productsList[productIndex].amount += newProduct.amount;
+                    } else { //If the product is new, add the product instead
+                        productsList = productsList.push(newProduct);
+                    }
+                    console.log("--- PRODUCT ADDED ---\n");
+                
+                } else{
+                    console.log("--- NO STOCK AVAILABLE ---\n");
+                } 
+            });
         } catch (error) {
             console.log(error)
         }     

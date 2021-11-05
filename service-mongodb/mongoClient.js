@@ -21,6 +21,7 @@ exports.checkStock = function(productId, number){
       //We search the required product in the database
       collection.find({id: productId}).toArray(function(err, productsList){ 
         var result = productsList[0];
+        console.log(result)
         var amount = result.amount;
         //The result of the promise is a boolean telling if the stock in the database is bigger than the amount asked
         resolve(number < amount); 

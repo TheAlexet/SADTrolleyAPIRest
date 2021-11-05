@@ -1,7 +1,7 @@
 const express = require('express');
-const ServiceRegistry = require('./lib/ServiceRegistry');
 const service = express();
-const trolley = require('../shoppingTrolley');
+const Trolley = require('../shoppingTrolley');
+const Product = require('../../shoppingProduct');
 
 module.exports = () => {
   var myTrolley = new Trolley();
@@ -43,8 +43,7 @@ module.exports = () => {
       var id = parseInt(req.params.id);
       var amount = parseInt(req.params.amount);
       var product = new Product(id, pName, description, price, amount);
-      trolley.addProductDB(product);
-      setTimeout(()=>{res.send(trolley);},2000);
+      myTrolley.addProductDB(product);
   });
 
   //Removes a product from the stock, given its id
@@ -83,8 +82,12 @@ module.exports = () => {
           return res.send("Product unavailable");
       }
       var id = parseInt(req.params.id);
-      trolley.removeProduct(id);
-      res.send(trolley);
+      myTrolley.removeProduct(id);
+  });
+
+  //Shows the trolley on screen
+  service.get('/trolley', (req, res) => {
+    res.send(myTrolley);
   });
 
   return service;
